@@ -8,11 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { RefreshCw, Wallet, Clock, DollarSign, TrendingUp, Coffee } from "lucide-react";
 
-interface WalletBalance {
-  sol: number;
-  usdc: number;
-}
-
 interface TransactionData {
   hash: string;
   timestamp: string;
@@ -33,8 +28,7 @@ interface DashboardProps {
 }
 
 export function Dashboard({ onReviewRoundUp, onViewPosition }: DashboardProps) {
-  const { selectedAccount, isConnected, rpc } = useSolana();
-  const [walletBalance, setWalletBalance] = useState<WalletBalance | null>(null);
+  const { selectedAccount, isConnected, solBalance, usdcBalance, isLoadingBalances, fetchBalances, networkName } = useSolana();
   const [lastTransaction, setLastTransaction] = useState<TransactionData | null>(null);
   const [roundUpData, setRoundUpData] = useState<RoundUpData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -43,11 +37,6 @@ export function Dashboard({ onReviewRoundUp, onViewPosition }: DashboardProps) {
   // Mock data for development - replace with actual API calls
   useEffect(() => {
     if (isConnected && selectedAccount) {
-      // Mock wallet balance
-      setWalletBalance({
-        sol: 2.45,
-        usdc: 150.75
-      });
 
       // Mock last transaction
       setLastTransaction({
@@ -70,8 +59,8 @@ export function Dashboard({ onReviewRoundUp, onViewPosition }: DashboardProps) {
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Refresh balances
+      await fetchBalances();
       
       // Update last sync time
       if (roundUpData) {
@@ -160,17 +149,21 @@ export function Dashboard({ onReviewRoundUp, onViewPosition }: DashboardProps) {
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium coffee-text-secondary">Network</span>
               <Badge variant="secondary" className="coffee-bg-mocha text-white">
-                Solana Devnet
+                {networkName}
               </Badge>
             </div>
-            {walletBalance && (
+            {(solBalance !== null || usdcBalance !== null) && (
               <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                 <div className="text-center">
-                  <div className="text-2xl font-bold coffee-text-primary">{walletBalance.sol} SOL</div>
+                  <div className="text-2xl font-bold coffee-text-primary">
+                    {isLoadingBalances ? "..." : `${solBalance?.toFixed(4) || "0"} SOL`}
+                  </div>
                   <div className="text-sm text-muted-foreground">Available Balance</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold coffee-text-primary">${walletBalance.usdc} USDC</div>
+                  <div className="text-2xl font-bold coffee-text-primary">
+                    {isLoadingBalances ? "..." : `${usdcBalance?.toFixed(2) || "0"} USDC`}
+                  </div>
                   <div className="text-sm text-muted-foreground">Stable Balance</div>
                 </div>
               </div>
