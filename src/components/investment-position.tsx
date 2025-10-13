@@ -90,7 +90,7 @@ export function InvestmentPosition({ onBack }: InvestmentPositionProps) {
             <PieChart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <CardTitle className="coffee-text-primary">No Investment Position</CardTitle>
             <CardDescription className="coffee-text-secondary">
-              You haven't made any round-up transfers yet
+              You haven&apos;t made any round-up transfers yet
             </CardDescription>
           </CardHeader>
           <CardContent>

@@ -20,7 +20,7 @@ interface SolanaContextState {
   // RPC
   rpc: ReturnType<typeof createSolanaRpc>;
   ws: ReturnType<typeof createSolanaRpcSubscriptions>;
-  chain: string;
+  chain: `solana:${string}`;
   networkName: string;
 
   // Wallet State
@@ -99,6 +99,7 @@ export function SolanaProvider({ children }: { children: React.ReactNode }) {
       await new Promise(resolve => setTimeout(resolve, 100));
       
       // Fetch SOL balance
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const solBalanceResponse = await rpc.getBalance(selectedAccount.address as any).send();
       console.log('SOL balance response:', solBalanceResponse);
       
@@ -112,8 +113,11 @@ export function SolanaProvider({ children }: { children: React.ReactNode }) {
 
       // Fetch USDC balance using getTokenAccountsByOwner
       try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const tokenAccounts = await rpc.getTokenAccountsByOwner(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           selectedAccount.address as any,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           { mint: networkConfig.USDC_MINT as any }
         ).send();
 
@@ -160,7 +164,7 @@ export function SolanaProvider({ children }: { children: React.ReactNode }) {
       // Static RPC values
       rpc,
       ws,
-      chain: networkConfig.CHAIN,
+      chain: networkConfig.CHAIN as `solana:${string}`,
       networkName: networkConfig.DISPLAY_NAME,
 
       // Dynamic wallet values

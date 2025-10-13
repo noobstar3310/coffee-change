@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Endpoint Tester - Coffee Change</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #f5f5f5;
+        }
+        h1 {
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h2 {
+            margin-bottom: 15px;
+            color: #555;
+            font-size: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #666;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .checkbox-group input {
+            width: auto;
+        }
+        button {
+            background: #0070f3;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #0051cc;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #0070f3;
+        }
+        .response.error {
+            border-left-color: #e00;
+            background: #fff5f5;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #333;
+        }
+        .loading {
+            display: inline-block;
+            margin-left: 10px;
+            color: #666;
+        }
+        .example-addresses {
+            background: #fffbeb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+        .example-addresses strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #854d0e;
+        }
+        .example-addresses button {
+            font-size: 12px;
+            padding: 4px 8px;
+            margin-top: 5px;
+            background: #854d0e;
+        }
+    </style>
+</head>
+<body>
+    <h1>Coffee Change API Tester</h1>
+
+    <div class="container">
+        <h2>1. Test /api/txns (Fetch Transactions)</h2>
+
+        <div class="example-addresses">
+            <strong>Example Address (has mainnet transactions):</strong>
+            <code>CuieVDEDtLo7FypA9SbLM9saXFdb1dsshEkyErMqkRQq</code>
+            <button onclick="document.getElementById('txns-address').value = 'CuieVDEDtLo7FypA9SbLM9saXFdb1dsshEkyErMqkRQq'">Use This</button>
+        </div>
+
+        <div class="form-group">
+            <label for="txns-address">Solana Address:</label>
+            <input type="text" id="txns-address" placeholder="Enter Solana address...">
+        </div>
+
+        <div class="form-group">
+            <label for="txns-lookback">Lookback Days:</label>
+            <input type="number" id="txns-lookback" value="7" min="1" max="90">
+        </div>
+
+        <div class="form-group">
+            <label for="txns-limit">Limit:</label>
+            <input type="number" id="txns-limit" value="10" min="1" max="1000">
+        </div>
+
+        <button onclick="testTransactions()">Fetch Transactions</button>
+        <span class="loading" id="txns-loading" style="display: none;">Loading...</span>
+
+        <div id="txns-response"></div>
+    </div>
+
+    <div class="container">
+        <h2>2. Test /api/proposals (Generate Proposals)</h2>
+
+        <div class="example-addresses">
+            <strong>Example Address (has mainnet transactions):</strong>
+            <code>CuieVDEDtLo7FypA9SbLM9saXFdb1dsshEkyErMqkRQq</code>
+            <button onclick="document.getElementById('proposals-address').value = 'CuieVDEDtLo7FypA9SbLM9saXFdb1dsshEkyErMqkRQq'">Use This</button>
+        </div>
+
+        <div class="form-group">
+            <label for="proposals-address">Solana Address:</label>
+            <input type="text" id="proposals-address" placeholder="Enter Solana address...">
+        </div>
+
+        <div class="form-group">
+            <label for="proposals-lookback">Lookback Days:</label>
+            <input type="number" id="proposals-lookback" value="7" min="1" max="90">
+        </div>
+
+        <div class="form-group checkbox-group">
+            <input type="checkbox" id="roundup-enabled" checked>
+            <label for="roundup-enabled">Round-up Enabled</label>
+        </div>
+
+        <div class="form-group checkbox-group">
+            <input type="checkbox" id="percentage-enabled">
+            <label for="percentage-enabled">Percentage Enabled</label>
+        </div>
+
+        <div class="form-group">
+            <label for="percentage-rate">Percentage Rate (%):</label>
+            <input type="number" id="percentage-rate" value="1.0" min="0" max="100" step="0.1">
+        </div>
+
+        <button onclick="testProposals()">Generate Proposals</button>
+        <span class="loading" id="proposals-loading" style="display: none;">Loading...</span>
+
+        <div id="proposals-response"></div>
+    </div>
+
+    <script>
+        async function testTransactions() {
+            const address = document.getElementById('txns-address').value.trim();
+            const lookbackDays = document.getElementById('txns-lookback').value;
+            const limit = document.getElementById('txns-limit').value;
+            const responseDiv = document.getElementById('txns-response');
+            const loading = document.getElementById('txns-loading');
+
+            if (!address) {
+                responseDiv.innerHTML = '<div class="response error"><pre>Please enter a Solana address</pre></div>';
+                return;
+            }
+
+            responseDiv.innerHTML = '';
+            loading.style.display = 'inline-block';
+
+            try {
+                const url = `/api/txns?address=${encodeURIComponent(address)}&lookbackDays=${lookbackDays}&limit=${limit}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                const cssClass = data.success ? 'response' : 'response error';
+                responseDiv.innerHTML = `<div class="${cssClass}"><pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+            } catch (error) {
+                responseDiv.innerHTML = `<div class="response error"><pre>Error: ${error.message}</pre></div>`;
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        async function testProposals() {
+            const address = document.getElementById('proposals-address').value.trim();
+            const lookbackDays = document.getElementById('proposals-lookback').value;
+            const roundupEnabled = document.getElementById('roundup-enabled').checked;
+            const percentageEnabled = document.getElementById('percentage-enabled').checked;
+            const percentageRate = document.getElementById('percentage-rate').value;
+            const responseDiv = document.getElementById('proposals-response');
+            const loading = document.getElementById('proposals-loading');
+
+            if (!address) {
+                responseDiv.innerHTML = '<div class="response error"><pre>Please enter a Solana address</pre></div>';
+                return;
+            }
+
+            responseDiv.innerHTML = '';
+            loading.style.display = 'inline-block';
+
+            try {
+                const url = `/api/proposals?address=${encodeURIComponent(address)}&lookbackDays=${lookbackDays}&roundupEnabled=${roundupEnabled}&percentageEnabled=${percentageEnabled}&percentageRate=${percentageRate}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                const cssClass = data.success ? 'response' : 'response error';
+                responseDiv.innerHTML = `<div class="${cssClass}"><pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+            } catch (error) {
+                responseDiv.innerHTML = `<div class="response error"><pre>Error: ${error.message}</pre></div>`;
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        // Allow Enter key to submit
+        document.getElementById('txns-address').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') testTransactions();
+        });
+
+        document.getElementById('proposals-address').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') testProposals();
+        });
+    </script>
+</body>
+</html>
