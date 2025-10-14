@@ -39,12 +39,12 @@ export class PriceOracle {
     if (cached) return cached;
 
     try {
-      // Try Jupiter first as it's simpler and more reliable
-      const price = await this.fetchFromJupiter('So11111111111111111111111111111111111111112');
+      // Use CoinGecko for SOL price (free, no API key needed)
+      const price = await this.fetchFromCoinGecko('solana');
       const priceData: PriceData = {
         price,
         timestamp: Date.now(),
-        source: 'jupiter',
+        source: 'jupiter', // Keep as 'jupiter' for backward compatibility
       };
       this.cachePrice(cacheKey, priceData);
       return priceData;
@@ -68,11 +68,13 @@ export class PriceOracle {
     if (cached) return cached;
 
     try {
-      const price = await this.fetchFromJupiter(tokenMint);
+      // Map token mint to CoinGecko ID
+      const coingeckoId = this.mintToCoinGeckoId(tokenMint);
+      const price = await this.fetchFromCoinGecko(coingeckoId);
       const priceData: PriceData = {
         price,
         timestamp: Date.now(),
-        source: 'jupiter',
+        source: 'jupiter', // Keep as 'jupiter' for backward compatibility
       };
       this.cachePrice(cacheKey, priceData);
       return priceData;
@@ -117,7 +119,48 @@ export class PriceOracle {
   }
 
   /**
-   * Fetch price from Jupiter aggregator
+   * Map Solana token mint address to CoinGecko ID
+   */
+  private mintToCoinGeckoId(tokenMint: string): string {
+    const mintMap: { [key: string]: string } = {
+      'So11111111111111111111111111111111111111112': 'solana',
+      'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v': 'usd-coin', // Mainnet USDC
+      '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU': 'usd-coin', // Devnet USDC
+      'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB': 'tether', // USDT
+      'mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So': 'msol', // mSOL
+    };
+
+    return mintMap[tokenMint] || 'solana';
+  }
+
+  /**
+   * Fetch price from CoinGecko API (free, no API key needed)
+   */
+  private async fetchFromCoinGecko(coinId: string): Promise<number> {
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`CoinGecko API error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const priceData = data[coinId];
+
+      if (!priceData || !priceData.usd) {
+        throw new Error('Price data not available');
+      }
+
+      return priceData.usd;
+    } catch (error) {
+      console.error('CoinGecko fetch error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Fetch price from Jupiter aggregator (deprecated - requires auth now)
    */
   private async fetchFromJupiter(tokenMint: string): Promise<number> {
     const oracleConfig = config.getPriceOracleConfig();
