@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Change - Wallet Testing Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: #1a202c;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+        }
+
+        .card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            margin-bottom: 2rem;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .stat-card:nth-child(2) {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .stat-card:nth-child(3) {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .stat-card:nth-child(4) {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            font-family: 'Courier New', monospace;
+        }
+
+        .response-section {
+            margin-top: 2rem;
+        }
+
+        .response-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #f7fafc;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .response-header:hover {
+            background: #edf2f7;
+        }
+
+        .response-header h3 {
+            font-size: 1.125rem;
+            color: #2d3748;
+        }
+
+        .toggle-icon {
+            transition: transform 0.3s;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .toggle-icon.open {
+            transform: rotate(180deg);
+        }
+
+        .response-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .response-content.open {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .response-box {
+            margin-top: 1rem;
+            padding: 1.5rem;
+            background: #1a202c;
+            border-radius: 0.5rem;
+            color: #68d391;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1.6;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            animation: slideDown 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border-left: 4px solid #38a169;
+        }
+
+        .alert-error {
+            background: #fed7d7;
+            color: #742a2a;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 3rem;
+            opacity: 0.9;
+        }
+
+        .footer p {
+            margin-bottom: 0.5rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        /* Scrollbar styling */
+        .response-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .response-content::-webkit-scrollbar-track {
+            background: #2d3748;
+            border-radius: 4px;
+        }
+
+        .response-content::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
+        }
+
+        .response-content::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.875rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Coffee Change</h1>
+            <p>Wallet Testing Interface <span class="badge">Devnet</span></p>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <div class="card">
+            <div class="input-group">
+                <label for="walletAddress">Wallet Address</label>
+                <input
+                    type="text"
+                    id="walletAddress"
+                    placeholder="Enter Solana wallet address..."
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" id="connectBtn">
+                    <span class="btn-text">Connect Wallet</span>
+                    <span class="spinner hidden"></span>
+                </button>
+                <button class="btn btn-secondary" id="syncBtn">
+                    <span class="btn-text">Sync Transactions</span>
+                    <span class="spinner hidden"></span>
+                </button>
+                <button class="btn btn-info" id="statusBtn">
+                    <span class="btn-text">Get Status</span>
+                    <span class="spinner hidden"></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-bottom: 1.5rem; color: #2d3748; font-size: 1.5rem; font-weight: 700;">Dashboard</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Current Accumulated</div>
+                    <div class="stat-value" id="currentAccumulated">$0.00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Lifetime Total</div>
+                    <div class="stat-value" id="lifetimeTotal">$0.00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Pending Transactions</div>
+                    <div class="stat-value" id="pendingTransactions">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Payouts</div>
+                    <div class="stat-value" id="totalPayouts">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="response-section">
+                <div class="response-header" id="responseToggle">
+                    <h3>API Response</h3>
+                    <span class="toggle-icon" id="toggleIcon">&#9660;</span>
+                </div>
+                <div class="response-content" id="responseContent">
+                    <div class="response-box" id="responseBox">No response yet. Click a button to test the API.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Coffee Change - Round Up Your Crypto for Good</p>
+            <p style="font-size: 0.875rem; opacity: 0.8;">API Endpoint: http://localhost:3000</p>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'http://localhost:3000';
+        const WALLET_STORAGE_KEY = 'coffeechange_wallet_address';
+
+        // DOM Elements
+        const walletInput = document.getElementById('walletAddress');
+        const connectBtn = document.getElementById('connectBtn');
+        const syncBtn = document.getElementById('syncBtn');
+        const statusBtn = document.getElementById('statusBtn');
+        const responseBox = document.getElementById('responseBox');
+        const responseContent = document.getElementById('responseContent');
+        const responseToggle = document.getElementById('responseToggle');
+        const toggleIcon = document.getElementById('toggleIcon');
+        const alertContainer = document.getElementById('alertContainer');
+
+        // Stats elements
+        const currentAccumulated = document.getElementById('currentAccumulated');
+        const lifetimeTotal = document.getElementById('lifetimeTotal');
+        const pendingTransactions = document.getElementById('pendingTransactions');
+        const totalPayouts = document.getElementById('totalPayouts');
+
+        // Load saved wallet address from localStorage
+        window.addEventListener('load', () => {
+            const savedAddress = localStorage.getItem(WALLET_STORAGE_KEY);
+            if (savedAddress) {
+                walletInput.value = savedAddress;
+            }
+        });
+
+        // Save wallet address to localStorage on input
+        walletInput.addEventListener('input', (e) => {
+            localStorage.setItem(WALLET_STORAGE_KEY, e.target.value);
+        });
+
+        // Toggle response box
+        responseToggle.addEventListener('click', () => {
+            responseContent.classList.toggle('open');
+            toggleIcon.classList.toggle('open');
+        });
+
+        // Show alert
+        function showAlert(message, type = 'success') {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <span style="font-size: 1.25rem;">${type === 'success' ? '✓' : '✕'}</span>
+                <span>${message}</span>
+            `;
+            alertContainer.appendChild(alert);
+
+            setTimeout(() => {
+                alert.style.animation = 'slideDown 0.3s ease-out reverse';
+                setTimeout(() => alert.remove(), 300);
+            }, 5000);
+        }
+
+        // Update response box
+        function updateResponse(data, endpoint) {
+            const timestamp = new Date().toLocaleString();
+            const formattedData = JSON.stringify(data, null, 2);
+            responseBox.textContent = `[${timestamp}] Response from ${endpoint}:\n\n${formattedData}`;
+
+            // Auto-open response box
+            if (!responseContent.classList.contains('open')) {
+                responseContent.classList.add('open');
+                toggleIcon.classList.add('open');
+            }
+        }
+
+        // Update stats dashboard
+        function updateStats(data) {
+            if (data.currentAccumulated !== undefined) {
+                currentAccumulated.textContent = `$${(data.currentAccumulated / 1000000).toFixed(2)}`;
+            }
+            if (data.lifetimeTotal !== undefined) {
+                lifetimeTotal.textContent = `$${(data.lifetimeTotal / 1000000).toFixed(2)}`;
+            }
+            if (data.pendingTransactions !== undefined) {
+                pendingTransactions.textContent = data.pendingTransactions.toString();
+            }
+            if (data.totalPayouts !== undefined) {
+                totalPayouts.textContent = data.totalPayouts.toString();
+            }
+        }
+
+        // Button loading state
+        function setButtonLoading(button, isLoading) {
+            const spinner = button.querySelector('.spinner');
+            const text = button.querySelector('.btn-text');
+
+            if (isLoading) {
+                button.disabled = true;
+                spinner.classList.remove('hidden');
+                text.style.opacity = '0.7';
+            } else {
+                button.disabled = false;
+                spinner.classList.add('hidden');
+                text.style.opacity = '1';
+            }
+        }
+
+        // Validate wallet address
+        function validateWalletAddress() {
+            const address = walletInput.value.trim();
+            if (!address) {
+                showAlert('Please enter a wallet address', 'error');
+                return null;
+            }
+            if (address.length < 32 || address.length > 44) {
+                showAlert('Invalid wallet address format', 'error');
+                return null;
+            }
+            return address;
+        }
+
+        // API call wrapper
+        async function makeApiCall(endpoint, method = 'GET', body = null) {
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || `HTTP error! status: ${response.status}`);
+            }
+
+            return data;
+        }
+
+        // Connect Wallet
+        connectBtn.addEventListener('click', async () => {
+            const address = validateWalletAddress();
+            if (!address) return;
+
+            setButtonLoading(connectBtn, true);
+
+            try {
+                const data = await makeApiCall('/api/wallet/connect', 'POST', {
+                    walletAddress: address
+                });
+
+                updateResponse(data, 'POST /api/wallet/connect');
+                showAlert('Wallet connected successfully!', 'success');
+
+                // Update stats if available in response
+                if (data.wallet) {
+                    updateStats({
+                        currentAccumulated: data.wallet.currentAccumulated || 0,
+                        lifetimeTotal: data.wallet.lifetimeTotal || 0,
+                        pendingTransactions: 0,
+                        totalPayouts: data.wallet.totalPayouts || 0
+                    });
+                }
+            } catch (error) {
+                updateResponse({ error: error.message }, 'POST /api/wallet/connect');
+                showAlert(`Error: ${error.message}`, 'error');
+            } finally {
+                setButtonLoading(connectBtn, false);
+            }
+        });
+
+        // Sync Transactions
+        syncBtn.addEventListener('click', async () => {
+            const address = validateWalletAddress();
+            if (!address) return;
+
+            setButtonLoading(syncBtn, true);
+
+            try {
+                const data = await makeApiCall('/api/wallet/sync', 'POST', {
+                    walletAddress: address
+                });
+
+                updateResponse(data, 'POST /api/wallet/sync');
+                showAlert(`Synced ${data.transactionsSynced || 0} transactions!`, 'success');
+
+                // Update stats if available in response
+                if (data.wallet) {
+                    updateStats({
+                        currentAccumulated: data.wallet.currentAccumulated || 0,
+                        lifetimeTotal: data.wallet.lifetimeTotal || 0,
+                        pendingTransactions: data.pendingTransactions || 0,
+                        totalPayouts: data.wallet.totalPayouts || 0
+                    });
+                }
+            } catch (error) {
+                updateResponse({ error: error.message }, 'POST /api/wallet/sync');
+                showAlert(`Error: ${error.message}`, 'error');
+            } finally {
+                setButtonLoading(syncBtn, false);
+            }
+        });
+
+        // Get Status
+        statusBtn.addEventListener('click', async () => {
+            const address = validateWalletAddress();
+            if (!address) return;
+
+            setButtonLoading(statusBtn, true);
+
+            try {
+                const data = await makeApiCall(`/api/wallet/status/${address}`, 'GET');
+
+                updateResponse(data, 'GET /api/wallet/status');
+                showAlert('Status retrieved successfully!', 'success');
+
+                // Update stats from status response
+                if (data.wallet) {
+                    updateStats({
+                        currentAccumulated: data.wallet.currentAccumulated || 0,
+                        lifetimeTotal: data.wallet.lifetimeTotal || 0,
+                        pendingTransactions: data.pendingTransactions || 0,
+                        totalPayouts: data.totalPayouts || 0
+                    });
+                }
+            } catch (error) {
+                updateResponse({ error: error.message }, 'GET /api/wallet/status');
+                showAlert(`Error: ${error.message}`, 'error');
+            } finally {
+                setButtonLoading(statusBtn, false);
+            }
+        });
+
+        // Auto-focus wallet input on load
+        window.addEventListener('load', () => {
+            if (!walletInput.value) {
+                walletInput.focus();
+            }
+        });
+
+        // Enter key to connect
+        walletInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                connectBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
